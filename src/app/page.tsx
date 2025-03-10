@@ -3,13 +3,16 @@
 import { useState } from "react";
 
 export default function ShoppingList() {
-  const [shoppingList, setShoppingList] = useState(["Apples", "Bananas"]);
-  const [newItem, setNewItem] = useState("");
+  const [shoppingList, setShoppingList] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState<string>("");
 
-  const addItem = () => {
-    if (newItem.trim() === "") return;
+  // Fix: Add event.preventDefault() to prevent page reload
+  const addItem = (event: React.FormEvent) => {  
+    event.preventDefault(); // Prevents form from refreshing the page
+
+    if (newItem.trim() === "") return; // Prevent empty items
     setShoppingList([...shoppingList, newItem]);
-    setNewItem("");
+    setNewItem(""); // Clear input field after adding
   };
 
   const deleteItem = (index: number) => {
@@ -20,7 +23,8 @@ export default function ShoppingList() {
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-4xl font-bold mb-6 text-blue-400">Shopping List</h1>
 
-      <div className="flex w-full max-w-md items-center space-x-2">
+      {/* Fix: Form handles submission on Enter */}
+      <form onSubmit={addItem} className="flex w-full max-w-md items-center space-x-2">
         <input
           type="text"
           value={newItem}
@@ -28,10 +32,11 @@ export default function ShoppingList() {
           placeholder="Add a new item..."
           className="flex-1 p-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 outline-none border border-gray-700 focus:ring-2 focus:ring-blue-400"
         />
-        <button onClick={addItem} className="px-4 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 transition font-semibold">
+        {/* Fix: Button must have type="submit" */}
+        <button type="submit" className="px-4 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 transition font-semibold">
           + Add
         </button>
-      </div>
+      </form>
 
       <ul className="mt-6 w-full max-w-md bg-gray-800 p-4 rounded-lg shadow-lg">
         {shoppingList.map((item, index) => (
