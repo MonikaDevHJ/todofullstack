@@ -3,8 +3,9 @@
 import { useState } from "react";
 
 export default function ShoppingList() {
-  const [shoppingList, setShoppingList] = useState<string[]>([]);
   const [newItem, setNewItem] = useState<string>("");
+
+  const [shoppingList, setShoppingList] = useState<string[]>([]);
 
   // Fix: Add event.preventDefault() to prevent page reload
   const addItem = (event: React.FormEvent) => {
@@ -20,8 +21,7 @@ export default function ShoppingList() {
   };
 
   const editItem = (index: number) =>{
-    
-    
+  
   }
 
   return (
