@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ShoppingList() {
   const [newItem, setNewItem] = useState<string>("");
   const [shoppingList, setShoppingList] = useState<string[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  // Load shopping list from localStorage when component mounts
+  useEffect(() => {
+    const savedList = localStorage.getItem("shoppingList");
+    if (savedList) {
+      setShoppingList(JSON.parse(savedList));
+    }
+  }, []);
+
+  // Save shopping list to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
+  }, [shoppingList]);
 
   // Add Item
   const addItem = (event: React.FormEvent) => {
@@ -69,7 +82,7 @@ export default function ShoppingList() {
                 type="text"
                 value={shoppingList[index]}
                 onChange={(e) => handleEditChange(index, e.target.value)}
-                onBlur={() => setEditingIndex(null)} // Exit edit mode on blur
+                onBlur={() => setEditingIndex(null)}
                 onKeyDown={(e) => e.key === "Enter" && setEditingIndex(null)}
                 autoFocus
                 className="bg-gray-600 text-white p-2 rounded w-full"
@@ -80,18 +93,12 @@ export default function ShoppingList() {
 
             <div className="flex gap-2">
               {/* Edit Button */}
-              <button
-                onClick={() => editItem(index)}
-                className="text-yellow-400 hover:text-yellow-500 transition transform hover:scale-110"
-              >
+              <button onClick={() => editItem(index)} className="text-yellow-400 hover:text-yellow-500">
                 ✏️
               </button>
 
               {/* Delete Button */}
-              <button
-                onClick={() => deleteItem(index)}
-                className="text-red-400 hover:text-red-500 transition transform hover:scale-110"
-              >
+              <button onClick={() => deleteItem(index)} className="text-red-400 hover:text-red-500">
                 ✖
               </button>
             </div>
