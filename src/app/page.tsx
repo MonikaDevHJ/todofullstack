@@ -81,6 +81,7 @@ export default function ShoppingList() {
               <input
                 type="text"
                 value={shoppingList[index]}
+                
                 onChange={(e) => handleEditChange(index, e.target.value)}
                 onBlur={() => setEditingIndex(null)}
                 onKeyDown={(e) => e.key === "Enter" && setEditingIndex(null)}
