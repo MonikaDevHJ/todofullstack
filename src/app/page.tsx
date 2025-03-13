@@ -52,7 +52,7 @@ export default function ShoppingList() {
       {/* Input Form */}
       <form onSubmit={addItem} className="flex w-full max-w-md items-center space-x-2">
         <input
-          type="text"
+          type="text" 
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           placeholder="Add a new item..."
