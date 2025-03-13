@@ -16,6 +16,6 @@ datasource db {
 model ShoppingList {
   id        Int      @id @default(autoincrement()) // Unique ID (like 1, 2, 3...)
   item      String // Name of the item (Apple, Milk, etc)
-  quantity  Int // Quantity (5, 2, etc)
+  quantity  Int? // <-- Make it optional by adding `?`
   createdAt DateTime @default(now()) // When the item was added
 }
