@@ -12,3 +12,10 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model ShoppingList {
+  id        Int      @id @default(autoincrement()) // Unique ID (like 1, 2, 3...)
+  item      String // Name of the item (Apple, Milk, etc)
+  quantity  Int // Quantity (5, 2, etc)
+  createdAt DateTime @default(now()) // When the item was added
+}
