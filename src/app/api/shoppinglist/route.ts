@@ -9,7 +9,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const { item, quantity } = await req.json(); // ✅ Added 'quantity'
 
-  const newItem = await prisma.shoppingList.create({
+  const newItem = await prisma.shoppingList.create({  
     data: {
       item: item,
       quantity: quantity || 1, // ✅ Now it works!

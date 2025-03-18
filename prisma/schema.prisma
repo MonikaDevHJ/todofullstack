@@ -19,3 +19,11 @@ model ShoppingList {
   quantity  Int? // <-- Make it optional by adding `?`
   createdAt DateTime @default(now()) // When the item was added
 }
+
+model User {
+  id        Int      @id @default(autoincrement()) // Unique ID
+  name      String // User's name
+  email     String   @unique // Unique email
+  password  String // Hashed password
+  createdAt DateTime @default(now()) // Auto timestamp
+}
