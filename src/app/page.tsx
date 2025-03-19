@@ -3,46 +3,64 @@
 import { useState, useEffect } from "react";
 
 export default function ShoppingList() {
-  const [newItem, setNewItem] = useState<string>("");
-  const [shoppingList, setShoppingList] = useState<string[]>([]);
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newItem, setNewItem] = useState("");
+  const [shoppingList, setShoppingList] = useState([]);
+  const [editingItem, setEditingItem] = useState(null);
 
-  // Load shopping list from localStorage when component mounts
+  // Fetch items from API
   useEffect(() => {
-    const savedList = localStorage.getItem("shoppingList");
-    if (savedList) {
-      setShoppingList(JSON.parse(savedList));
-    }
+    fetch("/api/items")
+      .then((res) => res.json())
+      .then((data) => setShoppingList(data))
+      .catch((error) => console.error("Error fetching items:", error));
   }, []);
 
-  // Save shopping list to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("shoppingList", JSON.stringify(shoppingList));
-  }, [shoppingList]);
-
-  // Add Item
-  const addItem = (event: React.FormEvent) => {
+  // Add item
+  const addItem = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    if (newItem.trim() === "") return;
-    setShoppingList([...shoppingList, newItem]);
-    setNewItem("");
+    if (!newItem.trim()) return;
+
+    const response = await fetch("/api/items", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: newItem }),
+    });
+
+    if (response.ok) {
+      const addedItem = await response.json();
+      setShoppingList([...shoppingList, addedItem]);
+      setNewItem("");
+    }
   };
 
-  // Delete Item
-  const deleteItem = (index: number) => {
-    setShoppingList(shoppingList.filter((_, i) => i !== index));
+  // Delete item
+  const deleteItem = async (id) => {
+    const response = await fetch("/api/items", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+
+    if (response.ok) {
+      setShoppingList(shoppingList.filter((item) => item.id !== id));
+    }
   };
 
-  // Edit Item
-  const editItem = (index: number) => {
-    setEditingIndex(index); // Set item to edit mode
-  };
+  // Edit item
+  const updateItem = async (id, newName) => {
+    const response = await fetch("/api/items", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, name: newName }),
+    });
 
-  // Handle Input Change for Editing
-  const handleEditChange = (index: number, value: string) => {
-    const updatedList = [...shoppingList];
-    updatedList[index] = value;
-    setShoppingList(updatedList);
+    if (response.ok) {
+      const updatedItem = await response.json();
+      setShoppingList(
+        shoppingList.map((item) => (item.id === id ? updatedItem : item))
+      );
+      setEditingItem(null);
+    }
   };
 
   return (
@@ -52,7 +70,7 @@ export default function ShoppingList() {
       {/* Input Form */}
       <form onSubmit={addItem} className="flex w-full max-w-md items-center space-x-2">
         <input
-          type="text" 
+          type="text"
           value={newItem}
           onChange={(e) => setNewItem(e.target.value)}
           placeholder="Add a new item..."
@@ -71,34 +89,29 @@ export default function ShoppingList() {
         {shoppingList.length === 0 && (
           <p className="text-gray-400 text-center py-4">No items yet. Start adding some! 😊</p>
         )}
-        {shoppingList.map((item, index) => (
+        {shoppingList.map((item) => (
           <li
-            key={index}
+            key={item.id}
             className="p-3 mb-2 flex justify-between items-center rounded-md bg-gray-700 hover:bg-gray-600 transition"
           >
-            {/* Edit Mode */}
-            {editingIndex === index ? (
+            {editingItem === item.id ? (
               <input
                 type="text"
-                value={shoppingList[index]}
-                onChange={(e) => handleEditChange(index, e.target.value)}
-                onBlur={() => setEditingIndex(null)}
-                onKeyDown={(e) => e.key === "Enter" && setEditingIndex(null)}
+                defaultValue={item.name}
+                onBlur={(e) => updateItem(item.id, e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && updateItem(item.id, e.target.value)}
                 autoFocus
                 className="bg-gray-600 text-white p-2 rounded w-full"
               />
             ) : (
-              <span>{item}</span>
+              <span>{item.name}</span>
             )}
 
             <div className="flex gap-2">
-              {/* Edit Button */}
-              <button onClick={() => editItem(index)} className="text-yellow-400 hover:text-yellow-500">
+              <button onClick={() => setEditingItem(item.id)} className="text-yellow-400 hover:text-yellow-500">
                 ✏️
               </button>
-
-              {/* Delete Button */}
-              <button onClick={() => deleteItem(index)} className="text-red-400 hover:text-red-500">
+              <button onClick={() => deleteItem(item.id)} className="text-red-400 hover:text-red-500">
                 ✖
               </button>
             </div>
