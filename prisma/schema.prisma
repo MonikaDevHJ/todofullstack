@@ -27,3 +27,8 @@ model User {
   password  String // Hashed password
   createdAt DateTime @default(now()) // Auto timestamp
 }
+
+model Item {
+  id   String @id @default(uuid()) // Unique ID
+  name String
+}
