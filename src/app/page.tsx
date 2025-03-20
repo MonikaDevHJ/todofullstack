@@ -2,64 +2,93 @@
 
 import { useState, useEffect } from "react";
 
+// Define the type for a shopping item
+interface ShoppingItem {
+  id: string;
+  name: string;
+}
+
 export default function ShoppingList() {
-  const [newItem, setNewItem] = useState("");
-  const [shoppingList, setShoppingList] = useState([]);
-  const [editingItem, setEditingItem] = useState(null);
+  const [newItem, setNewItem] = useState<string>("");
+  const [shoppingList, setShoppingList] = useState<ShoppingItem[]>([]);
+  const [editingItem, setEditingItem] = useState<string | null>(null);
 
   // Fetch items from API
   useEffect(() => {
-    fetch("/api/items")
+    fetch("/api/users")
       .then((res) => res.json())
-      .then((data) => setShoppingList(data))
+      .then((data: ShoppingItem[]) => {
+        console.log("Fetched items:", data);
+        setShoppingList(data);
+      })
       .catch((error) => console.error("Error fetching items:", error));
   }, []);
 
   // Add item
-  const addItem = async (event: { preventDefault: () => void; }) => {
+  const addItem = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!newItem.trim()) return;
 
-    const response = await fetch("/api/items", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newItem }),
-    });
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newItem }),
+      });
 
-    if (response.ok) {
-      const addedItem = await response.json();
+      if (!response.ok) {
+        throw new Error(`Failed to add item: ${response.statusText}`);
+      }
+
+      const addedItem: ShoppingItem = await response.json();
       setShoppingList([...shoppingList, addedItem]);
       setNewItem("");
+    } catch (error) {
+      console.error("Error adding item:", error);
     }
   };
 
   // Delete item
-  const deleteItem = async (id) => {
-    const response = await fetch("/api/items", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
+  const deleteItem = async (id: string) => {
+    try {
+      const response = await fetch("/api/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
 
-    if (response.ok) {
+      if (!response.ok) {
+        throw new Error(`Failed to delete item: ${response.statusText}`);
+      }
+
       setShoppingList(shoppingList.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error("Error deleting item:", error);
     }
   };
 
   // Edit item
-  const updateItem = async (id, newName) => {
-    const response = await fetch("/api/items", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, name: newName }),
-    });
+  const updateItem = async (id: string, newName: string) => {
+    if (!newName.trim()) return;
 
-    if (response.ok) {
-      const updatedItem = await response.json();
+    try {
+      const response = await fetch("/api/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, name: newName }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to update item: ${response.statusText}`);
+      }
+
+      const updatedItem: ShoppingItem = await response.json();
       setShoppingList(
         shoppingList.map((item) => (item.id === id ? updatedItem : item))
       );
       setEditingItem(null);
+    } catch (error) {
+      console.error("Error updating item:", error);
     }
   };
 
