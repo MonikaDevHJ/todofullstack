@@ -8,6 +8,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await prisma.$queryRaw`SELECT 1`; // Ping the database
     res.status(200).json({ message: "Database keep-alive ping sent!" });
   } catch (error) {
+    console.error("Database ping failed:", error); // Log the actual error
     res.status(500).json({ error: "Error pinging the database" });
-  }
+}
+
 }
